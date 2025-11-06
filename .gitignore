@@ -1,0 +1,85 @@
+# =========================
+# Java / Maven
+# =========================
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+*.log
+hs_err_pid*
+
+# Maven wrapper files
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
+mvnw
+mvnw.cmd
+
+# =========================
+# IntelliJ IDEA
+# =========================
+.idea/
+*.iws
+*.ipr
+*.iml
+out/
+# JetBrains local history
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries/
+.idea/libraries/
+.idea/encodings.xml
+.idea/misc.xml
+.idea/vcs.xml
+.idea/shelf/
+.idea/httpRequests/
+.idea/dataSources/
+.idea/dataSources.local.xml
+.idea/sqlDataSources.xml
+.idea/dynamic.xml
+
+# =========================
+# Logs / Temp / Cache
+# =========================
+logs/
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*.swo
+*.orig
+.DS_Store
+
+# =========================
+# Docker / Build Artifacts
+# =========================
+**/docker-data/
+**/mysql_data/
+**/mongo_data/
+.env
+*.pid
+*.seed
+*.tar
+*.gz
+
+# =========================
+# Node (in case you use frontend)
+# =========================
+node_modules/
+dist/
+build/
+
+# =========================
+# VSCode / JetBrains misc
+# =========================
+.vscode/
+.idea/
+*.code-workspace
+
+# =========================
+# GitHub Actions cache
+# =========================
+.github/workflows/*.bak
+.github/workflows/*.tmp
