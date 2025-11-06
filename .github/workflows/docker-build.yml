@@ -31,8 +31,8 @@ jobs:
           context: .
           push: true
           tags: |
-            zhengtiantian/quant_api:latest
-            zhengtiantian/quant_api:${{ env.COMMIT_TAG }}
+            xiz001/quant_api:latest
+            xiz001/quant_api:${{ env.COMMIT_TAG }}
 
       - name: Create Pull Request in quant_docker
         uses: peter-evans/create-pull-request@v6
@@ -47,12 +47,3 @@ jobs:
           add-paths: docker-compose.yml
           base: main
           update-branch: true
-
-      - name: Modify docker-compose.yml in quant_docker
-        run: |
-          git clone https://zhengtiantian:${{ secrets.MAIN_REPO_PAT }}@github.com/zhengtiantian/quant_docker.git
-          cd quant_docker
-          sed -i "s|zhengtiantian/quant_api:.*|zhengtiantian/quant_api:${{ env.COMMIT_TAG }}|g" docker-compose.yml
-          git add docker-compose.yml
-          git commit -m "Update quant_api image tag to ${{ env.COMMIT_TAG }}"
-          git push origin update-api-image-${{ env.COMMIT_TAG }}
