@@ -13,7 +13,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Get short Git commit hash
-        id: vars
         run: echo "COMMIT_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
@@ -34,16 +33,29 @@ jobs:
             xiz001/quant_api:latest
             xiz001/quant_api:${{ env.COMMIT_TAG }}
 
-      - name: Create Pull Request in quant_docker
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.MAIN_REPO_PAT }}
-          repository: zhengtiantian/quant_docker
-          branch: update-api-image-${{ env.COMMIT_TAG }}
-          title: "Update quant_api image to ${{ env.COMMIT_TAG }}"
-          commit-message: "Update quant_api image tag to ${{ env.COMMIT_TAG }}"
-          body: |
-            This PR updates **quant_api** image tag to `${{ env.COMMIT_TAG }}`.
-          add-paths: docker-compose.yml
-          base: main
-          update-branch: true
+      - name: Clone quant_docker and modify compose file
+        run: |
+          git clone https://zhengtiantian:${{ secrets.MAIN_REPO_PAT }}@github.com/zhengtiantian/quant_docker.git
+          cd quant_docker
+          sed -i -E "s|(xiz001/quant_api:)[^[:space:]]+|\1${{ env.COMMIT_TAG }}|g" docker-compose.yml
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git checkout -b update-api-image-${{ env.COMMIT_TAG }}
+          git add docker-compose.yml
+          git commit -m "Update quant_api image tag to ${{ env.COMMIT_TAG }}"
+          git push origin update-api-image-${{ env.COMMIT_TAG }}
+
+      - name: Create Pull Request via GitHub API
+        env:
+          GITHUB_TOKEN: ${{ secrets.MAIN_REPO_PAT }}
+        run: |
+          curl -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/zhengtiantian/quant_docker/pulls \
+            -d '{
+              "title": "Update quant_api image to '${{ env.COMMIT_TAG }}'",
+              "head": "update-api-image-'${{ env.COMMIT_TAG }}'",
+              "base": "main",
+              "body": "This PR updates quant_api image tag to '${{ env.COMMIT_TAG }}'."
+            }'
