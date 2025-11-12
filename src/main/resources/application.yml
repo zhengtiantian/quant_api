@@ -1,6 +1,16 @@
 server:
   port: 8081
 
+keycloak:
+  auth-server-url: http://quant_keycloak:8080/
+  realm: quant
+  resource: quant-api
+  credentials:
+    secret: api-secret-123
+  bearer-only: true
+  ssl-required: none
+  use-resource-role-mappings: true
+
 spring:
   application:
     name: quant-api
