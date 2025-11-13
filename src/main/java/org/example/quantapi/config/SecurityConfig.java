@@ -2,53 +2,43 @@ package org.example.quantapi.config;
 
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
 import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
-import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
-import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.core.session.SessionRegistryImpl;
 
+@Configuration
+@EnableMethodSecurity
 @KeycloakConfiguration
-public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) {
-        KeycloakAuthenticationProvider provider = keycloakAuthenticationProvider();
-        provider.setGrantedAuthoritiesMapper(new SimpleAuthorityMapper());
-        auth.authenticationProvider(provider);
+    // 注册 Keycloak 认证 provider
+    @Bean
+    public KeycloakAuthenticationProvider keycloakAuthenticationProvider() {
+        return new KeycloakAuthenticationProvider();
     }
 
+    // 会话策略
     @Bean
-    @Override
     protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
         return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
     }
 
+    // 核心安全过滤配置（新版写法）
     @Bean
-    protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/api/private/**").authenticated()
-                        .anyRequest().permitAll()
-                )
-                .csrf(csrf -> csrf.disable()); // 关闭CSRF防护方便测试API
+                        .anyRequest().authenticated()
+                );
         return http.build();
-    }
-
-    @Override
-    public void init(WebSecurity builder) throws Exception {
-
-    }
-
-    @Override
-    public void configure(WebSecurity builder) throws Exception {
-
     }
 }
