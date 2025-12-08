@@ -31,8 +31,15 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/health", "/actuator/health").permitAll()
-                        .requestMatchers("/api/public/**").permitAll()
+                        // ✅ 放行自定义登录、注册接口
+                        .requestMatchers(
+                                "/api/auth/**",     // 登录注册
+                                "/api/health",      // 健康检查
+                                "/actuator/health", // 监控
+                                "/v3/api-docs/**",  // swagger
+                                "/swagger-ui/**"
+                        ).permitAll()
+                        // ✅ 其余接口必须带 token
                         .anyRequest().authenticated()
                 );
         return http.build();
