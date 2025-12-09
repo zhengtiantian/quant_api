@@ -10,6 +10,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.web.AuthenticationEntryPoint;
 
 @Configuration
 @EnableMethodSecurity
@@ -31,24 +32,23 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ 放行 React 前端静态资源
                         .requestMatchers("/", "/index.html", "/static/**", "/favicon.ico").permitAll()
-                        // ✅ 放行后端健康检测、登录接口
-                        .requestMatchers(
-                                "/api/health",
-                                "/actuator/health",
-                                "/api/auth/**"
-                        ).permitAll()
-                        // ✅ 其他 API 都要求带 Keycloak token
-                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers("/api/auth/**", "/api/health", "/actuator/health").permitAll()
+                        .requestMatchers("/api/scripts/**", "/api/run/**", "/api/stop/**").authenticated()
                         .anyRequest().permitAll()
                 )
-                // ✅ 不要重定向到 Keycloak登录页，只返回401
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(
-                        (request, response, authException) ->
-                                response.sendError(401, "Unauthorized")
-                ));
+                // ✅ 替换默认 Keycloak 登录页跳转逻辑
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedEntryPoint()));
 
         return http.build();
+    }
+
+    // ✅ 返回 401 而不是 302 重定向
+    private AuthenticationEntryPoint unauthorizedEntryPoint() {
+        return (request, response, authException) -> {
+            response.setStatus(401);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"error\": \"Unauthorized or token missing\"}");
+        };
     }
 }
