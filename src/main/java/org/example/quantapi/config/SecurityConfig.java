@@ -31,17 +31,24 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ 放行自定义登录、注册接口
+                        // ✅ 放行 React 前端静态资源
+                        .requestMatchers("/", "/index.html", "/static/**", "/favicon.ico").permitAll()
+                        // ✅ 放行后端健康检测、登录接口
                         .requestMatchers(
-                                "/api/auth/**",     // 登录注册
-                                "/api/health",      // 健康检查
-                                "/actuator/health", // 监控
-                                "/v3/api-docs/**",  // swagger
-                                "/swagger-ui/**"
+                                "/api/health",
+                                "/actuator/health",
+                                "/api/auth/**"
                         ).permitAll()
-                        // ✅ 其余接口必须带 token
-                        .anyRequest().authenticated()
-                );
+                        // ✅ 其他 API 都要求带 Keycloak token
+                        .requestMatchers("/api/**").authenticated()
+                        .anyRequest().permitAll()
+                )
+                // ✅ 不要重定向到 Keycloak登录页，只返回401
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(
+                        (request, response, authException) ->
+                                response.sendError(401, "Unauthorized")
+                ));
+
         return http.build();
     }
 }
