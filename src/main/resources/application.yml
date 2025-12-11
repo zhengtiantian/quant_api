@@ -14,6 +14,11 @@ keycloak:
 spring:
   application:
     name: quant-api
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://quant_keycloak:8080/realms/quant
 
   datasource:
     url: jdbc:mysql://192.168.1.26:13306/workflow?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
