@@ -19,14 +19,14 @@ public class ScriptController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/run/{**path}")
+    @GetMapping("/run/{path:.+}")
     public ResponseEntity<String> runScript(@PathVariable String path) {
         String url = QUANT_DATA_BASE + "/run/" + path;
         String response = restTemplate.getForObject(url, String.class);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/stop/{**path}")
+    @PostMapping("/stop/{path:.+}")
     public ResponseEntity<String> stopScript(@PathVariable String path) {
         String url = QUANT_DATA_BASE + "/stop/" + path;
         String response = restTemplate.postForObject(url, null, String.class);
