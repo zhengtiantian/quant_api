@@ -1,6 +1,10 @@
 server:
   port: 8081
 
+quant:
+  langchain:
+    api: ${LANGCHAIN_API:http://langchain-agent:8083}
+
 spring:
   application:
     name: quant-api
@@ -26,5 +30,5 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://root:root@192.168.1.26:27018/quantdb?authSource=admin
+      uri: ${MONGO_URI:mongodb://root:root@mongodb:27017/quantdb?authSource=admin}
       database: quantdb

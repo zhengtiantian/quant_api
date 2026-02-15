@@ -3,6 +3,7 @@ package org.example.quantapi.controller;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.HttpStatusCodeException;
 import java.util.Map;
 
 @RestController
@@ -34,8 +35,16 @@ public class AuthController {
         try {
             ResponseEntity<Map> response = rest.postForEntity(tokenUrl, request, Map.class);
             return ResponseEntity.ok(response.getBody());
+        } catch (HttpStatusCodeException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(Map.of(
+                    "error", "login_failed",
+                    "error_description", e.getResponseBodyAsString()
+            ));
         } catch (Exception e) {
-            return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
+            return ResponseEntity.status(401).body(Map.of(
+                    "error", "login_exception",
+                    "error_description", e.getMessage()
+            ));
         }
     }
 
