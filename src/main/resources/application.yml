@@ -15,7 +15,7 @@ spring:
           jwk-set-uri: "http://quant_keycloak:8080/realms/quant/protocol/openid-connect/certs"
 
   datasource:
-    url: jdbc:mysql://192.168.1.26:13306/workflow?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://mysql8:3306/workflow?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
