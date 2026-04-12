@@ -18,6 +18,7 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody Map<String, String> payload) {
         String username = payload.get("username");
         String password = payload.get("password");
+        String generatedEmail = username + "@local.quant";
 
         String tokenUrl = KEYCLOAK_URL + "/realms/quant/protocol/openid-connect/token";
 
@@ -53,6 +54,7 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody Map<String, String> payload) {
         String username = payload.get("username");
         String password = payload.get("password");
+        String generatedEmail = username + "@local.quant";
 
         try {
             RestTemplate rest = new RestTemplate();
@@ -74,12 +76,15 @@ public class AuthController {
             String createUserBody = String.format("""
                 {
                   "username": "%s",
+                  "firstName": "%s",
+                  "lastName": "User",
+                  "email": "%s",
                   "enabled": true,
                   "emailVerified": true,
                   "requiredActions": [],
                   "credentials": [{"type": "password", "value": "%s", "temporary": false}]
                 }
-                """, username, password);
+                """, username, username, generatedEmail, password);
 
             HttpEntity<String> createUserRequest = new HttpEntity<>(createUserBody, userHeaders);
             rest.exchange(KEYCLOAK_URL + "/admin/realms/quant/users", HttpMethod.POST, createUserRequest, String.class);
