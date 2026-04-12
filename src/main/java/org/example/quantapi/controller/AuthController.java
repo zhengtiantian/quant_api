@@ -75,6 +75,8 @@ public class AuthController {
                 {
                   "username": "%s",
                   "enabled": true,
+                  "emailVerified": true,
+                  "requiredActions": [],
                   "credentials": [{"type": "password", "value": "%s", "temporary": false}]
                 }
                 """, username, password);
