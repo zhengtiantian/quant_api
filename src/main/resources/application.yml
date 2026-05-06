@@ -4,6 +4,12 @@ server:
 quant:
   langchain:
     api: ${LANGCHAIN_API:http://langchain-agent:8083}
+  kafka:
+    signal-topic: quant.signals.daily
+  signal:
+    top-n: ${SIGNAL_TOP_N:10}
+  mongo:
+    quant-data-uri: ${QUANT_DATA_MONGO_URI:mongodb://root:root@mongo6:27017/quant_data?authSource=admin}
 
 spring:
   application:
@@ -32,3 +38,21 @@ spring:
     mongodb:
       uri: ${MONGO_URI:mongodb://root:root@mongodb:27017/quantdb?authSource=admin}
       database: quantdb
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: "true"
+        spring.json.add.type.headers: "false"
+    consumer:
+      group-id: quant-signal-consumer
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: "org.example.quantapi.event"
