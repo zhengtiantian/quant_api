@@ -42,7 +42,7 @@ public class SignalPublisherService {
      * @return number of signals published
      */
     public int publishLatestSignals() {
-        List<DailySignalEvent> signals = loadLatestSignals();
+        List<DailySignalEvent> signals = getLatestSignals();
         if (signals.isEmpty()) {
             log.warn("No signals found in daily_signals collection");
             return 0;
@@ -68,7 +68,8 @@ public class SignalPublisherService {
         return published;
     }
 
-    private List<DailySignalEvent> loadLatestSignals() {
+    /** Latest trade_date's ranked signals from quant_data.daily_signals. */
+    public List<DailySignalEvent> getLatestSignals() {
         List<DailySignalEvent> events = new ArrayList<>();
         try (MongoClient client = MongoClients.create(quantDataUri)) {
             MongoCollection<Document> col =
@@ -97,10 +98,18 @@ public class SignalPublisherService {
     }
 
     private DailySignalEvent toEvent(Document doc) {
-        Date tradeDate = doc.getDate("trade_date");
-        String tradeDateStr = tradeDate != null
-                ? tradeDate.toInstant().toString().substring(0, 10)
-                : "unknown";
+        // trade_date is stored as a "YYYY-MM-DD" string, but tolerate a Date too.
+        Object rawDate = doc.get("trade_date");
+        String tradeDateStr;
+        if (rawDate instanceof Date d) {
+            tradeDateStr = d.toInstant().toString().substring(0, 10);
+        } else if (rawDate instanceof String s && s.length() >= 10) {
+            tradeDateStr = s.substring(0, 10);
+        } else if (rawDate != null) {
+            tradeDateStr = rawDate.toString();
+        } else {
+            tradeDateStr = "unknown";
+        }
 
         return DailySignalEvent.builder()
                 .tradeDate(tradeDateStr)
