@@ -45,6 +45,18 @@ public class PortfolioService {
         return open;
     }
 
+    /** Latest portfolio backtest: equity curve + headline stats (raw, _id dropped). */
+    public Map<String, Object> getPerformance() {
+        try (MongoClient client = MongoClients.create(quantDataUri)) {
+            Document d = client.getDatabase("quant_data")
+                    .getCollection("portfolio_performance")
+                    .find(new Document("_id", "latest")).first();
+            if (d == null) return Map.of();
+            d.remove("_id");
+            return d;
+        }
+    }
+
     /** Exit alerts, most recent first. */
     public List<Map<String, Object>> getAlerts(int limit) {
         List<Map<String, Object>> out = new ArrayList<>();

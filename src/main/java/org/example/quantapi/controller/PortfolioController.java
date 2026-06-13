@@ -28,4 +28,10 @@ public class PortfolioController {
     public List<Map<String, Object>> alerts(@RequestParam(name = "limit", defaultValue = "20") int limit) {
         return portfolioService.getAlerts(limit);
     }
+
+    /** Portfolio backtest equity curve + stats. */
+    @GetMapping("/performance")
+    public Map<String, Object> performance() {
+        return portfolioService.getPerformance();
+    }
 }
