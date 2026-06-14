@@ -34,4 +34,10 @@ public class PortfolioController {
     public Map<String, Object> performance() {
         return portfolioService.getPerformance();
     }
+
+    /** Live paper-trading performance (out-of-sample) from the positions log. */
+    @GetMapping("/paper-performance")
+    public Map<String, Object> paperPerformance() {
+        return portfolioService.getPaperPerformance();
+    }
 }
