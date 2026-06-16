@@ -30,5 +30,15 @@ public class DailySignalEvent {
     private Double newsBurst20d;
     private Double qualityScore;
 
+    // D-series context features
+    private Double ahGap;
+    private Double analystBuyRatio;
+    private Double analystBuyRatioChg1m;
+    private Double instHoldingPctChg;
+    private Double retailSentScore;
+    private Integer macroRiskOn;
+    private Double macroVix;
+    private Double regimeMult;
+
     private Instant publishedAt;
 }

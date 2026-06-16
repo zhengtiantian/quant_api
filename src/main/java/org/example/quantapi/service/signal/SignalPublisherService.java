@@ -124,6 +124,14 @@ public class SignalPublisherService {
                 .earningsMissSignal(doc.getInteger("earnings_miss_signal", 0))
                 .newsBurst20d(getNullableDouble(doc, "news_burst_20d"))
                 .qualityScore(getNullableDouble(doc, "quality_score"))
+                .ahGap(getNullableDouble(doc, "ah_gap"))
+                .analystBuyRatio(getNullableDouble(doc, "analyst_buy_ratio"))
+                .analystBuyRatioChg1m(getNullableDouble(doc, "analyst_buy_ratio_chg_1m"))
+                .instHoldingPctChg(getNullableDouble(doc, "inst_holding_pct_chg"))
+                .retailSentScore(getNullableDouble(doc, "retail_sent_score"))
+                .macroRiskOn(doc.getInteger("macro_risk_on"))
+                .macroVix(getNullableDouble(doc, "macro_vix"))
+                .regimeMult(getNullableDouble(doc, "regime_mult"))
                 .publishedAt(Instant.now())
                 .build();
     }
