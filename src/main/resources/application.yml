@@ -2,8 +2,8 @@ server:
   port: 8081
 
 quant:
-  langchain:
-    api: ${LANGCHAIN_API:http://langchain-agent:8083}
+  ai:
+    api: ${QUANT_AI_API:http://quant-ai:8083}
   kafka:
     signal-topic: quant.signals.daily
   signal:
