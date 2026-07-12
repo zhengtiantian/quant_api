@@ -145,11 +145,11 @@ public class MarketDataService {
 
     private String nasdaqTimezoneNote() {
         ZonedDateTime nowBj = ZonedDateTime.now(BEIJING);
-        return "按当前日期换算，北京时间 " + marketHoursForDate(nowBj);
+        return "As of today (Beijing time): " + marketHoursForDate(nowBj);
     }
 
     private String marketHoursBeijing() {
-        return "夏令时: 21:30-04:00 | 冬令时: 22:30-05:00";
+        return "DST: 21:30-04:00 next day | Standard: 22:30-05:00 next day";
     }
 
     private String marketHoursForDate(ZonedDateTime dateInBeijing) {
@@ -165,10 +165,10 @@ public class MarketDataService {
 
         ZonedDateTime openBj = openNy.withZoneSameInstant(BEIJING);
         ZonedDateTime closeBj = closeNy.withZoneSameInstant(BEIJING);
-        return String.format("%02d:%02d 开市，%s %02d:%02d 收市",
+        return String.format("opens %02d:%02d, closes %s%02d:%02d",
                 openBj.getHour(),
                 openBj.getMinute(),
-                closeBj.toLocalDate().isAfter(openBj.toLocalDate()) ? "次日" : "当日",
+                closeBj.toLocalDate().isAfter(openBj.toLocalDate()) ? "+1d " : "",
                 closeBj.getHour(),
                 closeBj.getMinute());
     }

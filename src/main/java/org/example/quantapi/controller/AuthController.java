@@ -13,12 +13,10 @@ public class AuthController {
 
     private static final String KEYCLOAK_URL = "http://quant_keycloak:8080";
 
-    // 登录：前端传 username / password，向 Keycloak 申请 token
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> payload) {
         String username = payload.get("username");
         String password = payload.get("password");
-        String generatedEmail = username + "@local.quant";
 
         String tokenUrl = KEYCLOAK_URL + "/realms/quant/protocol/openid-connect/token";
 
@@ -49,7 +47,6 @@ public class AuthController {
         }
     }
 
-    // 注册：后端调用 Keycloak Admin API 创建用户
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> payload) {
         String username = payload.get("username");
@@ -59,7 +56,6 @@ public class AuthController {
         try {
             RestTemplate rest = new RestTemplate();
 
-            // 先用 admin 账号获取 token
             String adminTokenUrl = KEYCLOAK_URL + "/realms/master/protocol/openid-connect/token";
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -68,7 +64,6 @@ public class AuthController {
             Map<String, Object> adminToken = rest.postForObject(adminTokenUrl, new HttpEntity<>(adminBody, headers), Map.class);
             String accessToken = (String) adminToken.get("access_token");
 
-            // 调用 Keycloak 注册用户
             HttpHeaders userHeaders = new HttpHeaders();
             userHeaders.setBearerAuth(accessToken);
             userHeaders.setContentType(MediaType.APPLICATION_JSON);

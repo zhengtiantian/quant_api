@@ -312,7 +312,7 @@ public class StrategyService {
         if (safeMsg.isEmpty()) {
             return Map.of(
                     "role", "assistant",
-                    "message", "请先输入你的问题，例如：优化止损参数、增加风险控制、或解释当前策略流程。"
+                    "message", "Please enter your question, e.g.: optimize stop-loss, add risk controls, or explain the strategy workflow."
             );
         }
 
@@ -321,29 +321,29 @@ public class StrategyService {
         String lower = safeMsg.toLowerCase(Locale.ROOT);
 
         String response;
-        if (lower.contains("止损") || lower.contains("stop") || lower.contains("risk")) {
+        if (lower.contains("stop") || lower.contains("risk")) {
             response = """
-                    建议先做这三项风控增强：
-                    1. 将 `max_position_size` 从 10%% 下调到 5%%。
-                    2. 增加波动率过滤（高波动时减仓）。
-                    3. 在回测里加入滑点和交易成本敏感性分析。
+                    Suggested risk control improvements:
+                    1. Reduce `max_position_size` from 10%% to 5%%.
+                    2. Add a volatility filter (reduce position size when volatility is high).
+                    3. Include slippage and transaction cost sensitivity analysis in the backtest.
                     """;
-        } else if (lower.contains("回测") || lower.contains("backtest")) {
+        } else if (lower.contains("backtest")) {
             response = """
-                    回测建议：
-                    1. 使用滚动窗口（例如 2 年训练 + 6 个月验证）。
-                    2. 输出年化收益、最大回撤、夏普比率、胜率。
-                    3. 对不同市场阶段做分段评估（震荡/趋势）。
+                    Backtest recommendations:
+                    1. Use rolling windows (e.g., 2-year train + 6-month validation).
+                    2. Report annualized return, max drawdown, Sharpe ratio, and win rate.
+                    3. Evaluate performance across different market regimes (range-bound vs. trending).
                     """;
-        } else if (lower.contains("解释") || lower.contains("explain") || lower.contains("流程")) {
-            response = "当前策略 `" + strategyId + "` 包含 " + taskCount + " 个任务，主链路是 数据获取 -> 特征构建 -> 信号生成 -> 风控 -> 回测。";
+        } else if (lower.contains("explain") || lower.contains("workflow")) {
+            response = "Strategy `" + strategyId + "` has " + taskCount + " tasks: data fetch -> feature build -> signal generation -> risk control -> backtest.";
         } else {
             response = """
-                    我可以帮你做三类策略辅助：
-                    1. 需求澄清：把自然语言转成可执行策略结构。
-                    2. 参数优化：给出阈值、窗口、仓位控制建议。
-                    3. 结果解读：解释 StrategySpec / Tasks / XML 的含义。
-                    你可以继续说：`请把止损改成2%%并解释影响`。
+                    I can assist with three types of strategy tasks:
+                    1. Requirement clarification: convert natural language into an executable strategy structure.
+                    2. Parameter optimization: suggest thresholds, windows, and position sizing.
+                    3. Result interpretation: explain StrategySpec / Tasks / XML.
+                    Try: `change stop-loss to 2%% and explain the impact`.
                     """;
         }
 
@@ -636,10 +636,10 @@ public class StrategyService {
 
     private static String detectMarket(String prompt) {
         String lower = prompt == null ? "" : prompt.toLowerCase(Locale.ROOT);
-        if (lower.contains("btc") || lower.contains("eth") || lower.contains("crypto") || lower.contains("加密")) {
+        if (lower.contains("btc") || lower.contains("eth") || lower.contains("crypto")) {
             return "crypto";
         }
-        if (lower.contains("a股") || lower.contains("沪深") || lower.contains("china")) {
+        if (lower.contains("a-share") || lower.contains("china")) {
             return "cn_equity";
         }
         return "us_equity";
@@ -647,7 +647,7 @@ public class StrategyService {
 
     private static boolean requiresSentimentTask(String prompt) {
         String lower = prompt == null ? "" : prompt.toLowerCase(Locale.ROOT);
-        return lower.contains("新闻") || lower.contains("情绪") || lower.contains("sentiment") || lower.contains("news");
+        return lower.contains("sentiment") || lower.contains("news");
     }
 
     private Map<String, Object> normalizeTaskParameters(String taskId, Map<String, Object> raw, String market) {

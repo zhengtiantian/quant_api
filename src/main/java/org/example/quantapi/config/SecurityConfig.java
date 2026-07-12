@@ -19,11 +19,10 @@ public class SecurityConfig {
                                 "/", "/index.html", "/static/**", "/favicon.ico",
                                 "/api/auth/**", "/api/health", "/actuator/health"
                         ).permitAll()
-                        // ✅ 下面接口需要 token 验证
                         .requestMatchers("/api/scripts/**", "/api/run/**", "/api/stop/**").authenticated()
                         .anyRequest().permitAll()
                 )
-                // ✅ 关键点：只启用 Bearer Token 验证，不再重定向登录页
+                // JWT Bearer token only, no redirect to login page
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt());
 
         return http.build();

@@ -20,7 +20,6 @@ public class DatabaseTestService {
     public Map<String, Object> testConnections() {
         Map<String, Object> result = new HashMap<>();
 
-        // ✅ 测试 MySQL
         try {
             Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM information_schema.tables", Integer.class);
             result.put("mysql", "✅ Connected (" + count + " tables)");
@@ -28,7 +27,6 @@ public class DatabaseTestService {
             result.put("mysql", "❌ Connection failed: " + e.getMessage());
         }
 
-        // ✅ 测试 MongoDB
         try {
             String dbName = mongoTemplate.getDb().getName();
             result.put("mongodb", "✅ Connected (" + dbName + ")");
