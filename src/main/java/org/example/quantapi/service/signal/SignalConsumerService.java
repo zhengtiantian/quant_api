@@ -12,7 +12,7 @@ public class SignalConsumerService {
     @KafkaListener(topics = "${quant.kafka.signal-topic}", groupId = "quant-signal-consumer")
     public void onSignal(DailySignalEvent event) {
         if ("LONG".equals(event.getSignalType())) {
-            log.info("[SIGNAL] {} {} | rank=#{} score={:.4f} sentiment={} beat={}",
+            log.info("[SIGNAL] {} {} | rank=#{} score={} sentiment={} beat={}",
                     event.getTradeDate(), event.getSymbol(),
                     event.getSignalRank(), event.getCompositeScore(),
                     event.getAvgSentiment5d(), event.getEarningsBeatSignal());
