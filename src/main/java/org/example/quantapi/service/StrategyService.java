@@ -27,7 +27,7 @@ public class StrategyService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
     private final Map<String, Map<String, Object>> workflowStore = new ConcurrentHashMap<>();
-    private final String langchainApi;
+    private final String quant_aiApi;
     private final List<Map<String, Object>> moduleCatalog = List.of(
             Map.of(
                     "taskId", "fetch_market_data",
@@ -70,10 +70,10 @@ public class StrategyService {
 
     public StrategyService(
             StrategyWorkflowRepository strategyWorkflowRepository,
-            @Value("${quant.langchain.api:http://langchain-agent:8083}") String langchainApi
+            @Value("${quant.ai.api:http://quant-ai:8083}") String quantAiApi
     ) {
         this.strategyWorkflowRepository = strategyWorkflowRepository;
-        this.langchainApi = langchainApi;
+        this.quant_aiApi = quantAiApi;
         Map<String, Map<String, Object>> temp = new LinkedHashMap<>();
         for (Map<String, Object> module : moduleCatalog) {
             temp.put(String.valueOf(module.get("taskId")), module);
@@ -369,7 +369,6 @@ public class StrategyService {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     private static Map<String, Object> asMap(Object obj) {
         if (obj instanceof Map<?, ?> raw) {
             Map<String, Object> cast = new LinkedHashMap<>();
@@ -402,7 +401,6 @@ public class StrategyService {
         return out;
     }
 
-    @SuppressWarnings("unchecked")
     private static List<Map<String, Object>> asMapList(Object obj) {
         if (!(obj instanceof List<?> list)) {
             return List.of();
@@ -517,7 +515,7 @@ public class StrategyService {
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> postAsk(Map<String, String> body) {
-        String url = langchainApi + "/api/ask";
+        String url = quant_aiApi + "/api/ask";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
