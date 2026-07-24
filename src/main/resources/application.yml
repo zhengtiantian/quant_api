@@ -52,7 +52,16 @@ spring:
     consumer:
       group-id: quant-signal-consumer
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      # ErrorHandlingDeserializer wraps the JSON one so a record that cannot be
+      # deserialized reaches the error handler and is skipped. Without it the
+      # container cannot commit past a bad record and re-reads the same offset
+      # forever, pinning a full CPU core.
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       auto-offset-reset: earliest
       properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        # The producer sets add.type.headers=false so non-Java consumers can read
+        # the payload, so the target type has to be declared here instead.
+        spring.json.use.type.headers: "false"
+        spring.json.value.default.type: org.example.quantapi.event.DailySignalEvent
         spring.json.trusted.packages: "org.example.quantapi.event"
