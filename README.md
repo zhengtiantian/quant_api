@@ -13,12 +13,44 @@ Serves daily equity signals, portfolio positions, and news data to `quant_ui`. P
 | `AuthController` | `POST /api/auth/login` | Exchange credentials for Keycloak tokens |
 | `AuthController` | `POST /api/auth/register` | Register a new user via Keycloak admin API |
 | `SignalController` | `GET /api/signals/daily` | Latest composite signal scores |
-| `PortfolioController` | `GET /api/portfolio` | Open paper-trading positions |
+| `PortfolioController` | `GET /api/positions` | Rule-generated paper positions (written by `track_positions.py`) |
+| `PortfolioController` | `GET /api/alerts` | Exit-trigger alerts, most recent first |
+| `PortfolioController` | `GET /api/performance` | Backtest equity curve and stats |
+| `PortfolioController` | `GET /api/paper-performance` | Out-of-sample paper-trading performance |
+| `HoldingController` | `GET /api/portfolio/holdings` | The user's own holdings with live prices and totals |
+| `HoldingController` | `GET/POST /api/portfolio/transactions` | The trade log behind those holdings |
+| `HoldingController` | `PATCH/DELETE /api/portfolio/transactions/{id}` | Correct or remove one trade |
+| `HoldingController` | `GET/PUT /api/portfolio/cash` | Cash balance |
+| `HoldingController` | `GET /api/portfolio/quote` | Cached single-symbol quote |
+| `AgentDataController` | `GET /api/agent-data/*` | News sentiment and feature rows for the research agent |
 | `NewsController` | `GET /api/news` | Labeled news articles (MongoDB) |
 | `MarketDataController` | `GET /api/market/*` | Price history, OHLCV data |
 | `StrategyController` | `GET/POST /api/strategy` | Strategy workflow CRUD |
 | `ScriptController` | `POST /api/scripts/run` | Trigger quant_data pipeline scripts |
 | `HealthController` | `GET /api/health` | Liveness probe (unauthenticated) |
+
+`/api/positions` and `/api/portfolio/holdings` answer different questions. The first
+returns synthetic positions the signal tracker opens mechanically from the daily top-5;
+the second returns what the user actually owns, derived from a hand-maintained
+transaction log.
+
+### Holdings (P.1)
+
+Transactions are the source of truth and holdings are derived on read — quantity, a
+running weighted-average cost, unrealised and realised P&L, and weight as a share of
+total capital including cash. Storing an `avgCost` field on a holding row instead would
+make it unmaintainable: edit the quantity and there is no way to recompute what the
+average should now be. `HoldingService.replay()` is a pure fold over the log, covered by
+10 unit tests, because a wrong average cost silently corrupts every downstream figure.
+
+Quotes come from Finnhub behind a 20s TTL cache — the free tier allows 60 requests per
+minute and serves one symbol per call, so an unthrottled page would be rate-limited
+immediately. Off-hours the TTL stretches to 15 minutes. On failure, an unknown symbol,
+or a missing `FINNHUB_API_KEY` the service returns the last `stock_prices_history` close
+tagged `source: daily-close` so the caller can label it rather than present a stale
+number as live. **Under the VPN, containers have no outbound internet**, so the
+containerised service always serves daily closes; live quotes require running on the
+host until the quote fetch moves to the host Airflow scheduler (roadmap G.4).
 
 ## Tech Stack
 
