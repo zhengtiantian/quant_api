@@ -10,6 +10,10 @@ quant:
     top-n: ${SIGNAL_TOP_N:10}
   mongo:
     quant-data-uri: ${QUANT_DATA_MONGO_URI:mongodb://root:root@mongo6:27017/quant_data?authSource=admin}
+  finnhub:
+    # Live quotes for the holdings page. Unset is fine — QuoteService then serves the last
+    # daily close from stock_prices_history instead of failing.
+    token: ${FINNHUB_API_KEY:}
 
 spring:
   application:

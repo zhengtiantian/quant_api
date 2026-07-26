@@ -24,4 +24,18 @@ public class ApiExceptionHandler {
                 "details", details
         ));
     }
+
+    /**
+     * Hand-rolled argument checks (holdings input, ids) throw IllegalArgumentException.
+     * Without this they would surface as a 500, which hides a message the caller can act on.
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleBadArgument(IllegalArgumentException ex) {
+        String message = ex.getMessage() == null ? "invalid request" : ex.getMessage();
+        HttpStatus status = message.contains("not found") ? HttpStatus.NOT_FOUND : HttpStatus.BAD_REQUEST;
+        return ResponseEntity.status(status).body(Map.of(
+                "error", status == HttpStatus.NOT_FOUND ? "not_found" : "invalid_request",
+                "message", message
+        ));
+    }
 }
