@@ -36,6 +36,15 @@ public class DailySignalEvent {
     private Double retailSentScore;
     private Integer macroRiskOn;
     private Double macroVix;
+    /**
+     * RISK_ON / NEUTRAL / STRESSED / RISK_OFF, from classify_regime().
+     *
+     * <p>Only regimeMult was serialised before, which left every consumer able to see
+     * that conviction had been scaled without being able to see why. The portfolio
+     * review agent's regime check was structurally dead as a result: it read UNKNOWN on
+     * every run and could never fire, even while the platform itself was in STRESSED.
+     */
+    private String regimeLabel;
     private Double regimeMult;
 
     private Instant publishedAt;

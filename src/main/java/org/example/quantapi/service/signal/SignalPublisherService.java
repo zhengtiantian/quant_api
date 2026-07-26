@@ -131,6 +131,7 @@ public class SignalPublisherService {
                 .retailSentScore(getNullableDouble(doc, "retail_sent_score"))
                 .macroRiskOn(doc.getInteger("macro_risk_on"))
                 .macroVix(getNullableDouble(doc, "macro_vix"))
+                .regimeLabel(doc.getString("regime_label"))
                 .regimeMult(getNullableDouble(doc, "regime_mult"))
                 .publishedAt(Instant.now())
                 .build();
