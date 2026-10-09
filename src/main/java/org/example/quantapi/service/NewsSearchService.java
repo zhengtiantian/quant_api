@@ -102,8 +102,8 @@ public class NewsSearchService {
         // dropped before the result leaves this method.
         Bson projection = Projections.fields(
                 Projections.include("symbol", "name", "title", "content", "date", "url",
-                        "llm_sentiment_final", "llm_disagreement", "llm_event_type",
-                        "llm_signal_strength"),
+                        "llm_sentiment_final", "llm_disagreement", "llm_event_type_a",
+                        "llm_signal_strength_a", "llm_event_type", "llm_signal_strength"),
                 Projections.excludeId());
 
         var find = articles().find(filter).projection(projection).limit(capped);
@@ -146,13 +146,26 @@ public class NewsSearchService {
         r.put("excerpt", excerpt(d.getString("content")));
         r.put("sentiment", d.get("llm_sentiment_final"));
         r.put("modelDisagreement", d.get("llm_disagreement"));
-        r.put("eventType", d.getString("llm_event_type"));
-        r.put("signalStrength", d.getString("llm_signal_strength"));
+        // The labelled fields are llm_event_type_a / llm_signal_strength_a (pass A of the two
+        // labelling models, 867K documents). The unsuffixed names exist on 50 legacy rows, so
+        // reading them left these two fields null on essentially every result until 2026-10-09.
+        r.put("eventType", firstString(d, "llm_event_type_a", "llm_event_type"));
+        r.put("signalStrength", firstString(d, "llm_signal_strength_a", "llm_signal_strength"));
         r.put("url", d.getString("url"));
         if (d.get("score") != null) {
             r.put("relevance", round(((Number) d.get("score")).doubleValue()));
         }
         return r;
+    }
+
+    private static String firstString(Document d, String... keys) {
+        for (String k : keys) {
+            String v = d.getString(k);
+            if (v != null && !v.isBlank()) {
+                return v;
+            }
+        }
+        return null;
     }
 
     /** Bounded excerpt, cut on a word boundary so it does not end mid-token. */
