@@ -1,5 +1,7 @@
 package org.example.quantapi.config;
 
+import org.example.quantapi.mcp.McpAuthenticationEntryPoint;
+import org.example.quantapi.mcp.ProtectedResourceMetadataController;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,7 +54,9 @@ public class SecurityConfig {
                     // service is down.
                     auth.requestMatchers(
                             "/", "/index.html", "/static/**", "/favicon.ico", "/assets/**",
-                            "/api/auth/**", "/api/health", "/actuator/health"
+                            "/api/auth/**", "/api/health", "/actuator/health",
+                            // RFC 9728: an MCP client reads this before it has a token, to learn where to get one
+                            ProtectedResourceMetadataController.PATH, ProtectedResourceMetadataController.PATH + "/**"
                     ).permitAll();
 
                     if (!enforce) {
@@ -76,10 +80,16 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/scripts/**", "/api/run/**", "/api/stop/**")
                             .hasRole("quant-write");
 
-                    // Everything else: a valid token carrying read.
+                    // Everything else — including /mcp, the MCP endpoint — needs a valid token
+                    // carrying read. For /mcp that only admits the caller; each tool then
+                    // authorizes the call itself (QuantMcpTools), because tools reach the
+                    // controllers in-process where these path rules never see them.
                     auth.anyRequest().hasRole("quant-read");
                 })
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        // a 401 from /mcp also says where to log in (MCP authorization spec)
+                        .authenticationEntryPoint(new McpAuthenticationEntryPoint())
+                        .jwt(jwt ->
                         // Keycloak puts realm roles in realm_access.roles, which Spring's
                         // default converter does not read. Without this every hasRole
                         // check fails closed and looks like a permissions bug.
