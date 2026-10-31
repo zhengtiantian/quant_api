@@ -47,6 +47,42 @@ public class AuthController {
         }
     }
 
+    /**
+     * Swap a refresh token for new tokens, through the same Keycloak address as login. The browser
+     * cannot do it on :18082 itself: login tokens are issued by http://quant_keycloak:8080, and
+     * Keycloak refuses a refresh token whose issuer differs from the address it is called on.
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody Map<String, String> payload) {
+        String refreshToken = payload.get("refresh_token");
+        if (refreshToken == null || refreshToken.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "refresh_token_missing"));
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        org.springframework.util.MultiValueMap<String, String> form = new org.springframework.util.LinkedMultiValueMap<>();
+        form.add("client_id", "quant-ui");
+        form.add("grant_type", "refresh_token");
+        form.add("refresh_token", refreshToken);
+
+        try {
+            ResponseEntity<Map> response = new RestTemplate().postForEntity(
+                    KEYCLOAK_URL + "/realms/quant/protocol/openid-connect/token", new HttpEntity<>(form, headers), Map.class);
+            return ResponseEntity.ok(response.getBody());
+        } catch (HttpStatusCodeException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(Map.of(
+                    "error", "refresh_failed",
+                    "error_description", e.getResponseBodyAsString()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "error", "refresh_exception",
+                    "error_description", String.valueOf(e.getMessage())
+            ));
+        }
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> payload) {
         String username = payload.get("username");
