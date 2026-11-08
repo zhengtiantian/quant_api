@@ -25,7 +25,6 @@ Serves daily equity signals, portfolio positions, and news data to `quant_ui`. P
 | `AgentDataController` | `GET /api/agent-data/*` | News sentiment and feature rows for the research agent |
 | `NewsController` | `GET /api/news` | Labeled news articles (MongoDB) |
 | `MarketDataController` | `GET /api/market/*` | Price history, OHLCV data |
-| `StrategyController` | `GET/POST /api/strategy` | Strategy workflow CRUD |
 | `ScriptController` | `POST /api/scripts/run` | Trigger quant_data pipeline scripts |
 | `HealthController` | `GET /api/health` | Liveness probe (unauthenticated) |
 
@@ -58,8 +57,7 @@ host until the quote fetch moves to the host Airflow scheduler (roadmap G.4).
 |-------|-----------|
 | Framework | Spring Boot 3.3, Java 21 |
 | Auth | Spring Security + Keycloak JWT (OAuth2 Resource Server) |
-| Primary DB | MySQL 8 (workflow data, strategy configs) |
-| Signal/News DB | MongoDB 6 (quant_data database) |
+| Database | MongoDB 6 (quant_data database; MySQL retired 2026-10-31) |
 | Messaging | Apache Kafka 3.7 (producer + consumer) |
 | Build | Maven |
 
