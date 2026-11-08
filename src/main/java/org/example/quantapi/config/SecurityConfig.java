@@ -72,10 +72,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/portfolio/**", "/api/holdings/**")
                             .hasRole("quant-write");
 
-                    // Script execution stays operator-only; it runs code.
-                    auth.requestMatchers("/api/scripts/**", "/api/run/**", "/api/stop/**")
-                            .hasRole("quant-write");
-
                     // Everything else: a valid token carrying read.
                     auth.anyRequest().hasRole("quant-read");
                 })

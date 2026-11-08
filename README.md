@@ -25,7 +25,6 @@ Serves daily equity signals, portfolio positions, and news data to `quant_ui`. P
 | `AgentDataController` | `GET /api/agent-data/*` | News sentiment and feature rows for the research agent |
 | `NewsController` | `GET /api/news` | Labeled news articles (MongoDB) |
 | `MarketDataController` | `GET /api/market/*` | Price history, OHLCV data |
-| `ScriptController` | `POST /api/scripts/run` | Trigger quant_data pipeline scripts |
 | `HealthController` | `GET /api/health` | Liveness probe (unauthenticated) |
 
 `/api/positions` and `/api/portfolio/holdings` answer different questions. The first
@@ -80,8 +79,6 @@ quant:
 spring:
   security.oauth2.resourceserver.jwt:
     jwk-set-uri: http://quant_keycloak:8080/realms/quant/protocol/openid-connect/certs
-  datasource:
-    url: jdbc:mysql://mysql8:3306/workflow
   data.mongodb:
     uri: ...
     database: quantdb
@@ -89,7 +86,7 @@ spring:
 
 ## Build & Run
 
-### Local (requires MySQL + MongoDB + Keycloak + Kafka running)
+### Local (requires MongoDB + Keycloak + Kafka running)
 
 ```bash
 mvn spring-boot:run
